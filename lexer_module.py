@@ -2,12 +2,14 @@ import ply.lex as lex
 from ply.lex import LexError
 
 tokens = [
-    'CICLO', 'FUNCION', 'BOOLEANO',
-    'VARIABLE', 'ASIGNACION', 'CADENA', 'NUMERO', 'PREGUNTA', 'PARENTESIS',
-    'PARENTESIS_CIERRE', 'LLAVE', 'LLAVE_CIERRE', 'OPERADORES', 'ASIGNACION_FOR',
-    'PUNTO_COMA', 'OPERADOR_FOR', 'AUMENTO'
+    'PRINT', 'CICLO', 'FUNCION', 'BOOLEANO', 'VARIABLE', 'ASIGNACION',
+    'CADENA', 'NUMERO', 'PREGUNTA', 'PARENTESIS', 'PARENTESIS_CIERRE',
+    'LLAVE', 'LLAVE_CIERRE', 'OPERADORES', 'ASIGNACION_FOR', 'PUNTO_COMA',
+    'OPERADOR_FOR', 'AUMENTO'
 ]
 
+# Reglas de expresiones regulares simples para tokens
+t_PRINT = r'Print'
 t_ASIGNACION = r'='
 t_PREGUNTA = r'\?'
 t_PARENTESIS = r'\('
@@ -19,13 +21,10 @@ t_ASIGNACION_FOR = r':='
 t_PUNTO_COMA = r';'
 t_OPERADOR_FOR = r'>|<'
 t_AUMENTO = r'\+\+|--'
+t_FUNCION = r'fn'
 
 def t_CICLO(t):
     r'for'
-    return t
-
-def t_FUNCION(t):
-    r'fn'
     return t
 
 def t_VARIABLE(t):
@@ -36,6 +35,8 @@ def t_VARIABLE(t):
         t.type = 'FUNCION'
     elif t.value == 'true' or t.value == 'false':
         t.type = "BOOLEANO"
+    elif t.value == 'Print':
+        t.type ="PRINT"
     return t
 
 def t_BOOLEANO(t):
@@ -53,11 +54,11 @@ def t_NUMERO(t):
 
 t_ignore = ' \t\n'
 
-lexer = lex.lex()
-
 def t_error(t):
-    print(f"Error de sintaxis: Carácter ilegal '{t.value[0]}' en la línea {t.lineno}")
+    print(f"Carácter ilegal '{t.value[0]}'")
     t.lexer.skip(1)
+
+lexer = lex.lex()
 
 def analyze(data):
     lexer.input(data)
