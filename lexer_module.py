@@ -1,6 +1,8 @@
 import ply.lex as lex
 from ply.lex import LexError
 
+lexical_errors = []
+
 tokens = [
     'PRINT', 'CICLO', 'FUNCION', 'BOOLEANO', 'VARIABLE', 'ASIGNACION',
     'CADENA', 'NUMERO', 'PREGUNTA', 'PARENTESIS', 'PARENTESIS_CIERRE',
@@ -8,7 +10,6 @@ tokens = [
     'OPERADOR_FOR', 'AUMENTO'
 ]
 
-# Reglas de expresiones regulares simples para tokens
 t_PRINT = r'Print'
 t_ASIGNACION = r'='
 t_PREGUNTA = r'\?'
@@ -55,14 +56,20 @@ def t_NUMERO(t):
 t_ignore = ' \t\n'
 
 def t_error(t):
-    print(f"Carácter ilegal '{t.value[0]}'")
+    message = f"Error léxico: Carácter ilegal '{t.value[0]}'"
+    lexical_errors.append(message)
     t.lexer.skip(1)
 
 lexer = lex.lex()
 
+def clear_lexical_errors():
+    global lexical_errors
+    lexical_errors = []
+
 def analyze(data):
     lexer.input(data)
     results = []
+    clear_lexical_errors()
     try:
         while True:
             tok = lexer.token()
@@ -71,4 +78,4 @@ def analyze(data):
             results.append(str(tok))
     except LexError as e:
         results.append(f"Error de lexing: {e}")
-    return results
+    return results, lexical_errors

@@ -1,6 +1,8 @@
 import ply.yacc as yacc
 from lexer_module import tokens  # Asegúrate de que este importe es correcto
 
+parse_errors = []
+
 # Definición de la estructura del programa
 def p_program(p):
     '''program : statement
@@ -71,16 +73,23 @@ def p_numero(p):
     '''N : NUMERO'''
     p[0] = p[1]
 
+# Modifica la función p_error para que agregue errores a parse_errors
 def p_error(p):
     if p:
-        print(f"Error de sintaxis en '{p.value}'")
+        error_message = f"Error de sintaxis en '{p.value}'"
     else:
-        print("Error de sintaxis en EOF")
+        error_message = "Error de sintaxis en EOF"
+    parse_errors.append(error_message)
 
 parser = yacc.yacc()
 
+# Asegúrate de limpiar la lista de errores al comienzo de cada análisis
 def parse(data):
+    global parse_errors
+    parse_errors = []  # Reinicia la lista de errores
     result = parser.parse(data)
+    if len(parse_errors) > 0:
+        return parse_errors
     return result
 
 if __name__ == '__main__':
