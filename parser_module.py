@@ -1,5 +1,5 @@
 import ply.yacc as yacc
-from lexer_module import tokens  # Asegúrate de que este importe es correcto
+from lexer_module import tokens
 
 parse_errors = []
 
@@ -38,6 +38,9 @@ def p_definicion_funcion(p):
 # Ciclo for
 def p_ciclo_for(p):
     '''DF : CICLO PARENTESIS VARIABLE ASIGNACION_FOR NUMERO PUNTO_COMA VARIABLE OPERADORES VARIABLE PUNTO_COMA VARIABLE AUMENTO PARENTESIS_CIERRE LLAVE CT LLAVE_CIERRE'''
+    if p[8] == "==":
+        parse_errors.append("Error de sintaxis: operador '==' no permitido en la condición del ciclo for.")
+        return
     p[0] = ('ciclo_for', {
         'inicializacion': (p[3], p[5]),
         'condicion': (p[7], p[8], p[9]),
@@ -91,29 +94,3 @@ def parse(data):
     if len(parse_errors) > 0:
         return parse_errors
     return result
-
-if __name__ == '__main__':
-    test_strings = [
-        "a = false",
-        "b = \"hello world 123 oh me vengo\"",
-        "c = 123",
-        "d = 123.456",
-        """
-            ?a < b {
-                Print (c)
-            }
-            a = true
-        """,
-        '''
-        c = true
-        fn mifuncion() {
-            Print(c)
-        }
-        ''',
-        "variable = 10 for (x := 0; x < variable; x++) { Print(x) }",
-    ]
-    
-    for s in test_strings:
-        print(f"Testing: {s}")
-        result = parse(s)
-        print(f"Result: {result}\n")
