@@ -1,6 +1,10 @@
 import tkinter as tk
 from lexer_module import analyze
 from parser_module import parse, parse_errors
+from semantic_analyzer import run_code
+
+import subprocess
+import sys
 
 root = tk.Tk()
 root.title("Analizador Léxico y Sintáctico")
@@ -12,12 +16,13 @@ text_input.pack()
 output = tk.Text(root, height=10, width=50)
 output.pack()
 
+terminal = tk.Text(root, height=10, width=50)
+terminal.pack()
+
 def analizar():
     data = text_input.get("1.0", tk.END)
-    lexer_results, errors_found = analyze(data)  # Almacenar resultados y verificar errores
-    
-    print(errors_found)
-    
+    lexer_results, errors_found, _ = analyze(data)  # Almacenar resultados y verificar errores
+        
     output.delete("1.0", tk.END)
     output.insert(tk.END, "Resultados del Análisis Léxico:\n")
     for result in lexer_results:
@@ -35,8 +40,27 @@ def analizar():
         if parse_errors:  # Si hay errores de sintaxis
             for error in parse_errors:
                 output.insert(tk.END, error + '\n')
+            return
         else:
-            output.insert(tk.END, str(parser_result) + '\n')
+            output.insert(tk.END, "No se encontraron errores sintacticos")
+            if run_code(lexer_results):
+                try:
+                    ruta_archivo = 'mi_script.py'
+
+                    # Abre una nueva terminal y ejecuta el archivo Python
+                    if sys.platform.startswith('win'):  # Para Windows
+                        subprocess.Popen(['start', 'cmd', '/k', 'python', ruta_archivo], shell=True)
+                        proceso = subprocess.Popen(['python', ruta_archivo], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+                    else:  # Para Linux y otros sistemas Unix
+                        subprocess.Popen(['gnome-terminal', '-x', 'python', ruta_archivo])
+                        proceso = subprocess.Popen(['python', ruta_archivo], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                    for line in iter(proceso.stdout.readline, b''):
+                        terminal.insert(tk.END, line.decode(sys.stdout.encoding))
+                except:
+                    pass
+            else:
+                output.insert(tk.END, 'Error al ejecutar el archivo')
 
 
 analyze_button = tk.Button(root, text="Analizar", command=analizar)

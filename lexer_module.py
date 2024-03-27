@@ -69,6 +69,7 @@ def clear_lexical_errors():
 def analyze(data):
     lexer.input(data)
     results = []
+    tokens = []
     clear_lexical_errors()
     try:
         while True:
@@ -76,6 +77,7 @@ def analyze(data):
             if not tok:
                 break
             results.append(str(tok))
+            tokens.append(tok)
     except LexError as e:
         results.append(f"Error de lexing: {e}")
-    return results, lexical_errors
+    return results, lexical_errors, tokens
