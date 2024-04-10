@@ -20,6 +20,7 @@ terminal = tk.Text(root, height=10, width=50)
 terminal.pack()
 
 def analizar():
+    terminal.delete("1.0", tk.END)
     data = text_input.get("1.0", tk.END)
     lexer_results, errors_found, _ = analyze(data)  # Almacenar resultados y verificar errores
         
@@ -49,7 +50,6 @@ def analizar():
 
                     # Abre una nueva terminal y ejecuta el archivo Python
                     if sys.platform.startswith('win'):  # Para Windows
-                        subprocess.Popen(['start', 'cmd', '/k', 'python', ruta_archivo], shell=True)
                         proceso = subprocess.Popen(['python', ruta_archivo], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
                     else:  # Para Linux y otros sistemas Unix
